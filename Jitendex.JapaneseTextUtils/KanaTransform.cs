@@ -46,7 +46,7 @@ public static class KanaTransform
                                   _ => x
     };
 
-    private static string Transform(string text, Func<int, int> transformer)
+    private static string Transform(ReadOnlySpan<char> text, Func<int, int> transformer)
     {
         Span<char> transformedText = text.Length < 100
             ? stackalloc char[text.Length]
