@@ -28,7 +28,7 @@ public static class RendakuTransform
         => [.. FirstToRendakuChars(text).Select(rendaku => rendaku + text[1..])];
 
     private static ImmutableArray<char> FirstToRendakuChars(ReadOnlySpan<char> x)
-        => x.Length == 0 ? default : x[0] switch
+        => x.Length == 0 ? [] : x[0] switch
         {
             'か' => ['が'],
             'き' => ['ぎ'],
@@ -50,6 +50,6 @@ public static class RendakuTransform
             'ふ' => ['ぶ', 'ぷ'],
             'へ' => ['べ', 'ぺ'],
             'ほ' => ['ぼ', 'ぽ'],
-            _ => default
+            _ => []
         };
 }
