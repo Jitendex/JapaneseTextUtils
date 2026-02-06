@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="Jitendex.JapaneseTextUtils.Test/Jitendex.JapaneseTextUtils.Test.csproj" />
+  <Project Path="Jitendex.JapaneseTextUtils/Jitendex.JapaneseTextUtils.csproj" />
+</Solution>
