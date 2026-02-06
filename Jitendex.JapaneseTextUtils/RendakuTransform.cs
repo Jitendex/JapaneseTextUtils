@@ -16,6 +16,7 @@ You should have received a copy of the GNU General Public License along with Jap
 If not, see <https://www.gnu.org/licenses/>.
 */
 
+using System;
 using System.Collections.Immutable;
 using System.Linq;
 
@@ -23,36 +24,32 @@ namespace Jitendex.JapaneseTextUtils;
 
 public static class RendakuTransform
 {
-    public static ImmutableArray<string> ToRendakuForms(this string text) => FirstToRendakuChars(text) switch
-    {
-        [] => [],
-        var rendakuChars => rendakuChars
-            .Select(rendaku => rendaku + text[1..])
-            .ToImmutableArray()
-    };
+    public static ImmutableArray<string> ToRendakuForms(this string text)
+        => [.. FirstToRendakuChars(text).Select(rendaku => rendaku + text[1..])];
 
-    private static ImmutableArray<char> FirstToRendakuChars(string x) => x.FirstOrDefault() switch
-    {
-        'か' => ['が'],
-        'き' => ['ぎ'],
-        'く' => ['ぐ'],
-        'け' => ['げ'],
-        'こ' => ['ご'],
-        'さ' => ['ざ'],
-        'し' => ['じ'],
-        'す' => ['ず'],
-        'せ' => ['ぜ'],
-        'そ' => ['ぞ'],
-        'た' => ['だ'],
-        'ち' => ['ぢ', 'じ'],
-        'つ' => ['づ', 'ず'],
-        'て' => ['で'],
-        'と' => ['ど'],
-        'は' => ['ば', 'ぱ'],
-        'ひ' => ['び', 'ぴ'],
-        'ふ' => ['ぶ', 'ぷ'],
-        'へ' => ['べ', 'ぺ'],
-        'ほ' => ['ぼ', 'ぽ'],
-        _ => []
-    };
+    private static ImmutableArray<char> FirstToRendakuChars(ReadOnlySpan<char> x)
+        => x.Length == 0 ? default : x[0] switch
+        {
+            'か' => ['が'],
+            'き' => ['ぎ'],
+            'く' => ['ぐ'],
+            'け' => ['げ'],
+            'こ' => ['ご'],
+            'さ' => ['ざ'],
+            'し' => ['じ'],
+            'す' => ['ず'],
+            'せ' => ['ぜ'],
+            'そ' => ['ぞ'],
+            'た' => ['だ'],
+            'ち' => ['ぢ', 'じ'],
+            'つ' => ['づ', 'ず'],
+            'て' => ['で'],
+            'と' => ['ど'],
+            'は' => ['ば', 'ぱ'],
+            'ひ' => ['び', 'ぴ'],
+            'ふ' => ['ぶ', 'ぷ'],
+            'へ' => ['べ', 'ぺ'],
+            'ほ' => ['ぼ', 'ぽ'],
+            _ => default
+        };
 }
