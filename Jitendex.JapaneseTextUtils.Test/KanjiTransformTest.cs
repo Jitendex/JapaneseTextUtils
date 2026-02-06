@@ -26,7 +26,7 @@ namespace Jitendex.JapaneseTextUtils.Test;
 [TestClass]
 public class KanjiTransformTest
 {
-    private static readonly (string, string)[] _data =
+    private static readonly (string Input, string ExpectedOutput)[] _solvableData =
     [
         // Using 々
         ("時々", "時時"),
@@ -60,7 +60,7 @@ public class KanjiTransformTest
     /// truly a kanji with the <see cref="KanjiComparison.IsKanji"/>
     /// method. I don't think it's worth it.
     /// </remarks>
-    private static readonly (string, string)[] _unsolvableData =
+    private static readonly (string Input, string ExpectedOutput)[] _unsolvableData =
     [
         ("古々々米、古々々米", "古古古米、古古古米"),
     ];
@@ -68,13 +68,9 @@ public class KanjiTransformTest
     [TestMethod]
     public void TestSolvable()
     {
-        foreach (var (expectedRunes, runes) in GetRunes(_data))
+        foreach (var (expectedRunes, runes) in GetRunes(_solvableData))
         {
-            CollectionAssert.AreEqual
-            (
-                expectedRunes,
-                runes
-            );
+            CollectionAssert.AreEqual(expectedRunes, runes);
         }
     }
 
@@ -83,11 +79,7 @@ public class KanjiTransformTest
     {
         foreach (var (expectedRunes, runes) in GetRunes(_unsolvableData))
         {
-            CollectionAssert.AreNotEqual
-            (
-                expectedRunes,
-                runes
-            );
+            CollectionAssert.AreNotEqual(expectedRunes, runes);
         }
     }
 

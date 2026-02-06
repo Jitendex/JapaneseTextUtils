@@ -26,21 +26,9 @@ public class KanaTransformTest
 
     [TestMethod]
     public void TestKataToHira()
-    {
-        Assert.AreEqual
-        (
-            hiraTest,
-            kataTest.KatakanaToHiragana()
-        );
-    }
+        => Assert.AreEqual(hiraTest, kataTest.KatakanaToHiragana());
 
     [TestMethod]
     public void TestHiraToKata()
-    {
-        Assert.AreEqual
-        (
-            kataTest,
-            hiraTest.HiraganaToKatakana()
-        );
-    }
+        => Assert.AreEqual(kataTest, hiraTest.HiraganaToKatakana());
 }
