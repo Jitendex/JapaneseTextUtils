@@ -32,6 +32,9 @@ public static class KanaTransform
     public static string KatakanaToHiragana(this string text) => Transform(text, KatakanaToHiragana);
     public static string HiraganaToKatakana(this string text) => Transform(text, HiraganaToKatakana);
 
+    public static string KatakanaToHiragana(this ReadOnlySpan<Rune> text) => Transform(text, KatakanaToHiragana);
+    public static string HiraganaToKatakana(this ReadOnlySpan<Rune> text) => Transform(text, HiraganaToKatakana);
+
     private static int HiraganaToKatakana(int x) => x switch
     {
         (>= 0x3041) and (<= 0x3096) => x + 0x60,  // ぁ through ゖ
@@ -57,5 +60,18 @@ public static class KanaTransform
             transformedText[i] = (char)transformer(text[i]);
         }
         return new string(transformedText);
+    }
+
+    private static string Transform(ReadOnlySpan<Rune> text, Func<int, int> transformer)
+    {
+        Span<Rune> transformedText = text.Length < 100
+            ? stackalloc Rune[text.Length]
+            : new Rune[text.Length];
+
+        for (int i = 0; i < text.Length; i++)
+        {
+            transformedText[i] = new Rune(transformer(text[i].Value));
+        }
+        return transformedText.FastToString();
     }
 }
