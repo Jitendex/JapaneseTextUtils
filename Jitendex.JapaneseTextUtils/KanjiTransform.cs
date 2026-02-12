@@ -56,9 +56,10 @@ public static class KanjiTransform
         return normalizedRunes;
     }
 
-    private static bool IsIterationMark(Rune c) => c.Value switch
-    {
-        '々' or '〻' => true,
-        _ => false
-    };
+    private static bool IsIterationMark(Rune c)
+        => c.Value switch
+        {
+            '々' or '〻' => true,
+            _ => false
+        };
 }
