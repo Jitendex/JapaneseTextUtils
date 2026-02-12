@@ -51,13 +51,21 @@ public static class KanaComparison
     public static bool IsKanaEquivalent(this Rune c, Rune comparison)
         => c.KatakanaToHiragana() == comparison.KatakanaToHiragana();
 
-    public static bool IsKanaEquivalent(this string text, string comparisonText)
-        => string.Equals
-        (
-            text.KatakanaToHiragana(),
-            comparisonText.KatakanaToHiragana(),
-            StringComparison.Ordinal
-        );
+    public static bool IsKanaEquivalent(this string text, ReadOnlySpan<char> comparisonText)
+    {
+        if (text.Length != comparisonText.Length)
+        {
+            return false;
+        }
+        for (int i = 0; i < text.Length; i++)
+        {
+            if(!text[i].IsKanaEquivalent(comparisonText[i]))
+            {
+                return false;
+            }
+        }
+        return true;
+    }
 
     private static bool IsKana(int c) => IsHiragana(c) || IsKatakana(c);
 
