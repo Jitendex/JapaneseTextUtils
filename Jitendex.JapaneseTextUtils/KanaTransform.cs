@@ -50,16 +50,23 @@ public static class KanaTransform
     };
 
     private static string Transform(ReadOnlySpan<char> text, Func<int, int> transformer)
-    {
-        Span<char> transformedText = text.Length < 100
-            ? stackalloc char[text.Length]
-            : new char[text.Length];
+        => string.Create
+        (
+            length: text.Length,
+            state: new TransformState { Text = text, Transformer = transformer },
+            action: static (destination, state) =>
+            {
+                for (int i = 0; i < state.Text.Length; i++)
+                {
+                    destination[i] = (char)state.Transformer(state.Text[i]);
+                }
+            }
+        );
 
-        for (int i = 0; i < text.Length; i++)
-        {
-            transformedText[i] = (char)transformer(text[i]);
-        }
-        return new string(transformedText);
+    private readonly ref struct TransformState
+    {
+        public readonly ReadOnlySpan<char> Text { get; init; }
+        public readonly Func<int, int> Transformer { get; init; }
     }
 
     private static string Transform(ReadOnlySpan<Rune> text, Func<int, int> transformer)
