@@ -35,12 +35,10 @@ public static class RuneCollectionExtensions
             state: runes,
             action: static (destination, state) =>
             {
-                // 'offset' is the total number of char values that
-                // have been written to the destination buffer.
-                int offset = 0;
+                int charsWritten = 0;
                 foreach (var rune in state)
                 {
-                    offset += rune.EncodeToUtf16(destination[offset..]);
+                    charsWritten += rune.EncodeToUtf16(destination[charsWritten..]);
                 }
             }
         );
