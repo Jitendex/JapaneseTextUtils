@@ -18,16 +18,39 @@ If not, see <https://www.gnu.org/licenses/>.
 
 using System;
 using System.Collections.Immutable;
-using System.Linq;
 
 namespace Jitendex.JapaneseTextUtils;
 
 public static class RendakuTransform
 {
     public static ImmutableArray<string> ToRendakuForms(this string text)
-        => [.. FirstToRendakuChars(text).Select(rendaku => rendaku + text[1..])];
+    {
+        var rendakuChars = FirstToRendakuChars(text);
+        if (rendakuChars.Length == 0)
+        {
+            return [];
+        }
+        var builder = ImmutableArray.CreateBuilder<string>(rendakuChars.Length);
+        foreach (var rendakuChar in rendakuChars)
+        {
+            builder.Add(string.Create
+            (
+                length: text.Length,
+                state: (text, rendakuChar),
+                action: static (destination, state) =>
+                {
+                    destination[0] = state.rendakuChar;
+                    for (int i = 1; i < state.text.Length; i++)
+                    {
+                        destination[i] = state.text[i];
+                    }
+                }
+            ));
+        }
+        return builder.MoveToImmutable();
+    }
 
-    private static ImmutableArray<char> FirstToRendakuChars(ReadOnlySpan<char> x)
+    private static ReadOnlySpan<char> FirstToRendakuChars(ReadOnlySpan<char> x)
         => x.Length == 0 ? [] : x[0] switch
         {
             'か' => ['が'],

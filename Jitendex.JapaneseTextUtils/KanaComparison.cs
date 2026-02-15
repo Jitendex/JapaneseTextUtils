@@ -59,7 +59,7 @@ public static class KanaComparison
         }
         for (int i = 0; i < text.Length; i++)
         {
-            if(!text[i].IsKanaEquivalent(comparisonText[i]))
+            if (!text[i].IsKanaEquivalent(comparisonText[i]))
             {
                 return false;
             }
