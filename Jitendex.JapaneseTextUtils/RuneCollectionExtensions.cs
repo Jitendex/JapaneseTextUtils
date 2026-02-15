@@ -18,20 +18,15 @@ If not, see <https://www.gnu.org/licenses/>.
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 public static class RuneCollectionExtensions
 {
     public static string FastToString(this ReadOnlySpan<Rune> runes)
-    {
-        int totalChars = 0;
-        foreach (var rune in runes)
-        {
-            totalChars += rune.Utf16SequenceLength;
-        }
-        return string.Create
+        => string.Create
         (
-            length: totalChars,
+            length: runes.SumUtf16SequenceLengths(),
             state: runes,
             action: static (destination, state) =>
             {
@@ -42,22 +37,34 @@ public static class RuneCollectionExtensions
                 }
             }
         );
+
+    public static int SumUtf16SequenceLengths(this ReadOnlySpan<Rune> runes)
+    {
+        int sum = 0;
+        foreach (var rune in runes)
+        {
+            sum += rune.Utf16SequenceLength;
+        }
+        return sum;
     }
 
     public static string FastToString(this Span<Rune> runes)
         => FastToString((ReadOnlySpan<Rune>)runes);
 
     public static string FastToString(this IReadOnlyList<Rune> runes)
-    {
-        Span<Rune> runeSpan = runes.Count < 100
-            ? stackalloc Rune[runes.Count]
-            : new Rune[runes.Count];
-        for (int i = 0; i < runes.Count; i++)
-        {
-            runeSpan[i] = runes[i];
-        }
-        return runeSpan.FastToString();
-    }
+        => string.Create
+        (
+            length: runes.Sum(static rune => rune.Utf16SequenceLength),
+            state: runes,
+            action: static (destination, state) =>
+            {
+                int charsWritten = 0;
+                foreach (var rune in state)
+                {
+                    charsWritten += rune.EncodeToUtf16(destination[charsWritten..]);
+                }
+            }
+        );
 
     public static string FastToString(this IList<Rune> runes)
         => FastToString((IReadOnlyList<Rune>)runes);
