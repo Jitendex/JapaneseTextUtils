@@ -26,7 +26,20 @@ public static class VerbTransform
         => LastToMasuStemLast(text) switch
         {
             default(char) => null,
-            char masuStemLast => text[..^1] + masuStemLast,
+            char masuStemLast => string.Create
+            (
+                length: text.Length,
+                state: (text, masuStemLast),
+                action: static (destination, state) =>
+                {
+                    int finalIndex = state.text.Length - 1;
+                    for (int i = 0; i < finalIndex; i++)
+                    {
+                        destination[i] = state.text[i];
+                    }
+                    destination[finalIndex] = state.masuStemLast;
+                }
+            ),
         };
 
     private static char LastToMasuStemLast(ReadOnlySpan<char> text)
