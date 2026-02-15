@@ -29,11 +29,14 @@ public static class KanaTransform
     public static Rune KatakanaToHiragana(this Rune c) => new(KatakanaToHiragana(c.Value));
     public static Rune HiraganaToKatakana(this Rune c) => new(HiraganaToKatakana(c.Value));
 
-    public static string KatakanaToHiragana(this string text) => Transform(text, KatakanaToHiragana);
-    public static string HiraganaToKatakana(this string text) => Transform(text, HiraganaToKatakana);
+    public static string KatakanaToHiragana(this string text) => KatakanaToHiragana((ReadOnlySpan<char>)text);
+    public static string HiraganaToKatakana(this string text) => HiraganaToKatakana((ReadOnlySpan<char>)text);
 
-    public static string KatakanaToHiragana(this ReadOnlySpan<Rune> text) => Transform(text, KatakanaToHiragana);
-    public static string HiraganaToKatakana(this ReadOnlySpan<Rune> text) => Transform(text, HiraganaToKatakana);
+    public static string KatakanaToHiragana(this Span<char> text) => KatakanaToHiragana((ReadOnlySpan<char>)text);
+    public static string HiraganaToKatakana(this Span<char> text) => HiraganaToKatakana((ReadOnlySpan<char>)text);
+
+    public static string KatakanaToHiragana(this Span<Rune> text) => KatakanaToHiragana((ReadOnlySpan<Rune>)text);
+    public static string HiraganaToKatakana(this Span<Rune> text) => HiraganaToKatakana((ReadOnlySpan<Rune>)text);
 
     private static int HiraganaToKatakana(int x) => x switch
     {
@@ -49,36 +52,63 @@ public static class KanaTransform
                                   _ => x
     };
 
-    private static string Transform(ReadOnlySpan<char> text, Func<int, int> transformer)
+    public static string KatakanaToHiragana(this ReadOnlySpan<char> text)
         => string.Create
         (
             length: text.Length,
-            state: new TransformState { Text = text, Transformer = transformer },
+            state: text,
             action: static (destination, state) =>
             {
-                for (int i = 0; i < state.Text.Length; i++)
+                for (int i = 0; i < state.Length; i++)
                 {
-                    destination[i] = (char)state.Transformer(state.Text[i]);
+                    destination[i] = state[i].KatakanaToHiragana();
                 }
             }
         );
 
-    private readonly ref struct TransformState
-    {
-        public readonly ReadOnlySpan<char> Text { get; init; }
-        public readonly Func<int, int> Transformer { get; init; }
-    }
+    public static string HiraganaToKatakana(this ReadOnlySpan<char> text)
+        => string.Create
+        (
+            length: text.Length,
+            state: text,
+            action: static (destination, state) =>
+            {
+                for (int i = 0; i < state.Length; i++)
+                {
+                    destination[i] = state[i].HiraganaToKatakana();
+                }
+            }
+        );
 
-    private static string Transform(ReadOnlySpan<Rune> text, Func<int, int> transformer)
-    {
-        Span<Rune> transformedText = text.Length < 100
-            ? stackalloc Rune[text.Length]
-            : new Rune[text.Length];
+    public static string KatakanaToHiragana(this ReadOnlySpan<Rune> text)
+        => string.Create
+        (
+            length: text.SumUtf16SequenceLengths(),
+            state: text,
+            action: static (destination, state) =>
+            {
+                int charsWritten = 0;
+                foreach (var rune in state)
+                {
+                    var transformedRune = rune.KatakanaToHiragana();
+                    charsWritten += transformedRune.EncodeToUtf16(destination[charsWritten..]);
+                }
+            }
+        );
 
-        for (int i = 0; i < text.Length; i++)
-        {
-            transformedText[i] = new Rune(transformer(text[i].Value));
-        }
-        return transformedText.FastToString();
-    }
+    public static string HiraganaToKatakana(this ReadOnlySpan<Rune> text)
+        => string.Create
+        (
+            length: text.SumUtf16SequenceLengths(),
+            state: text,
+            action: static (destination, state) =>
+            {
+                int charsWritten = 0;
+                foreach (var rune in state)
+                {
+                    var transformedRune = rune.HiraganaToKatakana();
+                    charsWritten += transformedRune.EncodeToUtf16(destination[charsWritten..]);
+                }
+            }
+        );
 }
