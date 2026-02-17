@@ -37,6 +37,10 @@ public static class KanaComparison
     public static bool IsHiraganaOrDefault(this Rune c) => c.IsHiragana() || c == default;
     public static bool IsKatakanaOrDefault(this Rune c) => c.IsKatakana() || c == default;
 
+    public static bool ContainsKana(this string text) => text.Any(IsKana);
+    public static bool ContainsHiragana(this string text) => text.Any(IsHiragana);
+    public static bool ContainsKatakana(this string text) => text.Any(IsKatakana);
+
     public static bool IsAllKana(this string text) => text.All(IsKana);
     public static bool IsAllHiragana(this string text) => text.All(IsHiragana);
     public static bool IsAllKatakana(this string text) => text.All(IsKatakana);
