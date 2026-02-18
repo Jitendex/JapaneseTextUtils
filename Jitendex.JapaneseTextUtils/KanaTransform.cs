@@ -17,6 +17,7 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System;
+using System.Linq;
 using System.Text;
 
 namespace Jitendex.JapaneseTextUtils;
@@ -29,8 +30,10 @@ public static class KanaTransform
     public static Rune KatakanaToHiragana(this Rune c) => new(KatakanaToHiragana(c.Value));
     public static Rune HiraganaToKatakana(this Rune c) => new(HiraganaToKatakana(c.Value));
 
-    public static string KatakanaToHiragana(this string text) => KatakanaToHiragana((ReadOnlySpan<char>)text);
-    public static string HiraganaToKatakana(this string text) => HiraganaToKatakana((ReadOnlySpan<char>)text);
+    public static string KatakanaToHiragana(this string text)
+        => text.Any(IsConvertibleToHiragana) ? KatakanaToHiragana((ReadOnlySpan<char>)text) : text;
+    public static string HiraganaToKatakana(this string text)
+        => text.Any(IsConvertibleToKatakana) ? HiraganaToKatakana((ReadOnlySpan<char>)text) : text;
 
     public static string KatakanaToHiragana(this Span<char> text) => KatakanaToHiragana((ReadOnlySpan<char>)text);
     public static string HiraganaToKatakana(this Span<char> text) => HiraganaToKatakana((ReadOnlySpan<char>)text);
@@ -38,18 +41,24 @@ public static class KanaTransform
     public static string KatakanaToHiragana(this Span<Rune> text) => KatakanaToHiragana((ReadOnlySpan<Rune>)text);
     public static string HiraganaToKatakana(this Span<Rune> text) => HiraganaToKatakana((ReadOnlySpan<Rune>)text);
 
-    private static int HiraganaToKatakana(int x) => x switch
+    private static int HiraganaToKatakana(int x) => IsConvertibleToKatakana(x) ? x + 0x60 : x;
+    private static int KatakanaToHiragana(int x) => IsConvertibleToHiragana(x) ? x - 0x60 : x;
+
+    private static bool IsConvertibleToKatakana(char x) => IsConvertibleToKatakana((int)x);
+    private static bool IsConvertibleToHiragana(char x) => IsConvertibleToHiragana((int)x);
+
+    private static bool IsConvertibleToKatakana(int x) => x switch
     {
-        (>= 0x3041) and (<= 0x3096) => x + 0x60,  // ぁ through ゖ
-            0x309D   or     0x309E  => x + 0x60,  // ゝ and ゞ
-                                  _ => x
+        (>= 0x3041) and (<= 0x3096) => true,  // ぁ through ゖ
+            0x309D   or     0x309E  => true,  // ゝ and ゞ
+                                  _ => false
     };
 
-    private static int KatakanaToHiragana(int x) => x switch
+    private static bool IsConvertibleToHiragana(int x) => x switch
     {
-        (>= 0x30A1) and (<= 0x30F6) => x - 0x60,  // ァ through ヶ
-            0x30FD   or     0x30FE  => x - 0x60,  // ヽ and ヾ
-                                  _ => x
+        (>= 0x30A1) and (<= 0x30F6) => true,  // ァ through ヶ
+            0x30FD   or     0x30FE  => true,  // ヽ and ヾ
+                                  _ => false
     };
 
     public static string KatakanaToHiragana(this ReadOnlySpan<char> text)
