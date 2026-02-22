@@ -17,37 +17,42 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System;
-using System.Collections.Immutable;
 
 namespace Jitendex.JapaneseTextUtils;
 
 public static class RendakuTransform
 {
-    public static ImmutableArray<string> ToRendakuForms(this string text)
+    public static ReadOnlySpan<string> ToRendakuForms(this ReadOnlySpan<char> text)
     {
         var rendakuChars = FirstToRendakuChars(text);
         if (rendakuChars.Length == 0)
         {
             return [];
         }
-        var builder = ImmutableArray.CreateBuilder<string>(rendakuChars.Length);
-        foreach (var rendakuChar in rendakuChars)
+        Span<string> rendakuForms = new string[rendakuChars.Length];
+        for (int i = 0; i < rendakuChars.Length; i++)
         {
-            builder.Add(string.Create
+            rendakuForms[i] = string.Create
             (
                 length: text.Length,
-                state: (text, rendakuChar),
+                state: new State { Text = text, RendakuChar = rendakuChars[i] },
                 action: static (destination, state) =>
                 {
-                    destination[0] = state.rendakuChar;
-                    for (int i = 1; i < state.text.Length; i++)
+                    destination[0] = state.RendakuChar;
+                    for (int j = 1; j < state.Text.Length; j++)
                     {
-                        destination[i] = state.text[i];
+                        destination[j] = state.Text[j];
                     }
                 }
-            ));
+            );
         }
-        return builder.MoveToImmutable();
+        return rendakuForms;
+    }
+
+    private readonly ref struct State
+    {
+        public readonly ReadOnlySpan<char> Text { get; init; }
+        public readonly char RendakuChar { get; init; }
     }
 
     private static ReadOnlySpan<char> FirstToRendakuChars(ReadOnlySpan<char> x)
@@ -73,6 +78,26 @@ public static class RendakuTransform
             'ふ' => ['ぶ', 'ぷ'],
             'へ' => ['べ', 'ぺ'],
             'ほ' => ['ぼ', 'ぽ'],
+            'カ' => ['ガ'],
+            'キ' => ['ギ'],
+            'ク' => ['グ'],
+            'ケ' => ['ゲ'],
+            'コ' => ['ゴ'],
+            'サ' => ['ザ'],
+            'シ' => ['ジ'],
+            'ス' => ['ズ'],
+            'セ' => ['ゼ'],
+            'ソ' => ['ゾ'],
+            'タ' => ['ダ'],
+            'チ' => ['ヂ', 'ジ'],
+            'ツ' => ['ヅ', 'ズ'],
+            'テ' => ['デ'],
+            'ト' => ['ド'],
+            'ハ' => ['バ', 'パ'],
+            'ヒ' => ['ビ', 'ピ'],
+            'フ' => ['ブ', 'プ'],
+            'ヘ' => ['ベ', 'ペ'],
+            'ホ' => ['ボ', 'ポ'],
             _ => []
         };
 }
