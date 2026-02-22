@@ -16,23 +16,27 @@ You should have received a copy of the GNU General Public License along with Jap
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-using System.Collections.Generic;
-using System.Linq;
+using System;
 using System.Text;
 
 namespace Jitendex.JapaneseTextUtils;
 
 public static class KanjiTransform
 {
-    public static Rune[] IterationMarksToKanji(this IList<Rune> runes)
+    public static ReadOnlySpan<Rune> IterationMarksToKanji(this ReadOnlySpan<Rune> runes)
     {
-        var normalizedRunes = new Rune[runes.Count];
+        if (!ContainsIterationMark(runes))
+        {
+            return runes;
+        }
+
+        var normalizedRunes = new Rune[runes.Length];
 
         // Replace iteration marks (々) and doubled iteration marks (々々) with their respective kanji.
-        for (int i = 0; i < runes.Count; i++)
+        for (int i = 0; i < runes.Length; i++)
         {
             var currentRune = runes[i];
-            var nextRune = runes.ElementAtOrDefault(i + 1);
+            var nextRune = (i + 1) < runes.Length ? runes[i + 1] : default;
 
             if (i > 1 && IsIterationMark(currentRune) && IsIterationMark(nextRune))
             {
@@ -56,8 +60,20 @@ public static class KanjiTransform
         return normalizedRunes;
     }
 
-    private static bool IsIterationMark(Rune c)
-        => c.Value switch
+    private static bool ContainsIterationMark(ReadOnlySpan<Rune> runes)
+    {
+        foreach (var rune in runes)
+        {
+            if (IsIterationMark(rune))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static bool IsIterationMark(Rune rune)
+        => rune.Value switch
         {
             '々' or '〻' => true,
             _ => false

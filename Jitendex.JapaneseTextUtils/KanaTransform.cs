@@ -17,7 +17,6 @@ If not, see <https://www.gnu.org/licenses/>.
 */
 
 using System;
-using System.Linq;
 using System.Text;
 
 namespace Jitendex.JapaneseTextUtils;
@@ -30,29 +29,11 @@ public static class KanaTransform
     public static Rune KatakanaToHiragana(this Rune c) => new(KatakanaToHiragana(c.Value));
     public static Rune HiraganaToKatakana(this Rune c) => new(HiraganaToKatakana(c.Value));
 
-    public static string KatakanaToHiragana(this string text)
-        => text.Any(IsConvertibleToHiragana) ? KatakanaToHiragana((ReadOnlySpan<char>)text) : text;
-    public static string HiraganaToKatakana(this string text)
-        => text.Any(IsConvertibleToKatakana) ? HiraganaToKatakana((ReadOnlySpan<char>)text) : text;
-
-    public static string KatakanaToHiragana(this Span<char> text) => KatakanaToHiragana((ReadOnlySpan<char>)text);
-    public static string HiraganaToKatakana(this Span<char> text) => HiraganaToKatakana((ReadOnlySpan<char>)text);
-
-    public static string KatakanaToHiragana(this Span<Rune> text) => KatakanaToHiragana((ReadOnlySpan<Rune>)text);
-    public static string HiraganaToKatakana(this Span<Rune> text) => HiraganaToKatakana((ReadOnlySpan<Rune>)text);
-
-    private static int HiraganaToKatakana(int x) => IsConvertibleToKatakana(x) ? x + 0x60 : x;
     private static int KatakanaToHiragana(int x) => IsConvertibleToHiragana(x) ? x - 0x60 : x;
+    private static int HiraganaToKatakana(int x) => IsConvertibleToKatakana(x) ? x + 0x60 : x;
 
-    private static bool IsConvertibleToKatakana(char x) => IsConvertibleToKatakana((int)x);
     private static bool IsConvertibleToHiragana(char x) => IsConvertibleToHiragana((int)x);
-
-    private static bool IsConvertibleToKatakana(int x) => x switch
-    {
-        (>= 0x3041) and (<= 0x3096) => true,  // ぁ through ゖ
-            0x309D   or     0x309E  => true,  // ゝ and ゞ
-                                  _ => false
-    };
+    private static bool IsConvertibleToKatakana(char x) => IsConvertibleToKatakana((int)x);
 
     private static bool IsConvertibleToHiragana(int x) => x switch
     {
@@ -61,8 +42,20 @@ public static class KanaTransform
                                   _ => false
     };
 
-    public static string KatakanaToHiragana(this ReadOnlySpan<char> text)
-        => string.Create
+    private static bool IsConvertibleToKatakana(int x) => x switch
+    {
+        (>= 0x3041) and (<= 0x3096) => true,  // ぁ through ゖ
+            0x309D   or     0x309E  => true,  // ゝ and ゞ
+                                  _ => false
+    };
+
+    public static string KatakanaToHiragana(this string text)
+    {
+        if (!IsConvertibleToHiragana(text))
+        {
+            return text;
+        }
+        return string.Create
         (
             length: text.Length,
             state: text,
@@ -74,9 +67,15 @@ public static class KanaTransform
                 }
             }
         );
+    }
 
-    public static string HiraganaToKatakana(this ReadOnlySpan<char> text)
-        => string.Create
+    public static string HiraganaToKatakana(this string text)
+    {
+        if (!IsConvertibleToKatakana(text))
+        {
+            return text;
+        }
+        return string.Create
         (
             length: text.Length,
             state: text,
@@ -88,36 +87,109 @@ public static class KanaTransform
                 }
             }
         );
+    }
 
-    public static string KatakanaToHiragana(this ReadOnlySpan<Rune> text)
-        => string.Create
-        (
-            length: text.SumUtf16SequenceLengths(),
-            state: text,
-            action: static (destination, state) =>
-            {
-                int charsWritten = 0;
-                foreach (var rune in state)
-                {
-                    var transformedRune = rune.KatakanaToHiragana();
-                    charsWritten += transformedRune.EncodeToUtf16(destination[charsWritten..]);
-                }
-            }
-        );
+    public static ReadOnlySpan<char> KatakanaToHiragana(this ReadOnlySpan<char> text)
+    {
+        if (!IsConvertibleToHiragana(text))
+        {
+            return text;
+        }
+        Span<char> destination = new char[text.Length];
+        for (int i = 0; i < text.Length; i++)
+        {
+            destination[i] = text[i].KatakanaToHiragana();
+        }
+        return destination;
+    }
 
-    public static string HiraganaToKatakana(this ReadOnlySpan<Rune> text)
-        => string.Create
-        (
-            length: text.SumUtf16SequenceLengths(),
-            state: text,
-            action: static (destination, state) =>
+    public static ReadOnlySpan<char> HiraganaToKatakana(this ReadOnlySpan<char> text)
+    {
+        if (!IsConvertibleToKatakana(text))
+        {
+            return text;
+        }
+        Span<char> destination = new char[text.Length];
+        for (int i = 0; i < text.Length; i++)
+        {
+            destination[i] = text[i].HiraganaToKatakana();
+        }
+        return destination;
+    }
+
+    public static ReadOnlySpan<Rune> KatakanaToHiragana(this ReadOnlySpan<Rune> text)
+    {
+        if (!IsConvertibleToHiragana(text))
+        {
+            return text;
+        }
+        Span<Rune> destination = new Rune[text.Length];
+        for (int i = 0; i < text.Length; i++)
+        {
+            destination[i] = text[i].KatakanaToHiragana();
+        }
+        return destination;
+    }
+
+    public static ReadOnlySpan<Rune> HiraganaToKatakana(this ReadOnlySpan<Rune> text)
+    {
+        if (!IsConvertibleToKatakana(text))
+        {
+            return text;
+        }
+        Span<Rune> destination = new Rune[text.Length];
+        for (int i = 0; i < text.Length; i++)
+        {
+            destination[i] = text[i].HiraganaToKatakana();
+        }
+        return destination;
+    }
+
+    private static bool IsConvertibleToHiragana(this ReadOnlySpan<char> characters)
+    {
+        foreach (var character in characters)
+        {
+            if (IsConvertibleToHiragana(character))
             {
-                int charsWritten = 0;
-                foreach (var rune in state)
-                {
-                    var transformedRune = rune.HiraganaToKatakana();
-                    charsWritten += transformedRune.EncodeToUtf16(destination[charsWritten..]);
-                }
+                return true;
             }
-        );
+        }
+        return false;
+    }
+
+    private static bool IsConvertibleToKatakana(this ReadOnlySpan<char> characters)
+    {
+        foreach (var character in characters)
+        {
+            if (IsConvertibleToKatakana(character))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static bool IsConvertibleToHiragana(this ReadOnlySpan<Rune> runes)
+    {
+        foreach (var rune in runes)
+        {
+            if (IsConvertibleToHiragana(rune.Value))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static bool IsConvertibleToKatakana(this ReadOnlySpan<Rune> runes)
+    {
+        foreach (var rune in runes)
+        {
+            if (IsConvertibleToKatakana(rune.Value))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
 }

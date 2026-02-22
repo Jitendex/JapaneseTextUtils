@@ -68,29 +68,32 @@ public class KanjiTransformTest
     [TestMethod]
     public void TestSolvable()
     {
-        foreach (var (expectedRunes, runes) in GetRunes(_solvableData))
+        foreach (var (expected, actual) in Transform(_solvableData))
         {
-            CollectionAssert.AreEqual(expectedRunes, runes);
+            Assert.AreEqual(expected, actual);
         }
     }
 
     [TestMethod]
     public void TestUnsolvable()
     {
-        foreach (var (expectedRunes, runes) in GetRunes(_unsolvableData))
+        foreach (var (expected, actual) in Transform(_unsolvableData))
         {
-            CollectionAssert.AreNotEqual(expectedRunes, runes);
+            Assert.AreNotEqual(expected, actual);
         }
     }
 
-    private static IEnumerable<(Rune[] ExpectedRunes, Rune[] Runes)> GetRunes((string, string)[] data)
+    private static IEnumerable<(string expected, string actual)> Transform((string, string)[] data)
     {
-        foreach (var (kanjiFormText, expectedText) in data)
+        foreach (var (kanjiFormText, expected) in data)
         {
-            var runes = kanjiFormText.EnumerateRunes().ToArray();
-            var expectedRunes = expectedText.EnumerateRunes().ToArray();
+            var actual = kanjiFormText
+                .EnumerateRunes()
+                .ToArray()
+                .IterationMarksToKanji()
+                .FastToString();
 
-            yield return (expectedRunes, runes.IterationMarksToKanji());
+            yield return (expected, actual);
         }
     }
 }
