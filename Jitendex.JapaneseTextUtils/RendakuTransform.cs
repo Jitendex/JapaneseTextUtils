@@ -22,14 +22,14 @@ namespace Jitendex.JapaneseTextUtils;
 
 public static class RendakuTransform
 {
-    public static ReadOnlySpan<string> ToRendakuForms(this ReadOnlySpan<char> text)
+    public static string[] ToRendakuForms(this ReadOnlySpan<char> text)
     {
         var rendakuChars = FirstToRendakuChars(text);
         if (rendakuChars.Length == 0)
         {
             return [];
         }
-        Span<string> rendakuForms = new string[rendakuChars.Length];
+        var rendakuForms = new string[rendakuChars.Length];
         for (int i = 0; i < rendakuChars.Length; i++)
         {
             rendakuForms[i] = string.Create
