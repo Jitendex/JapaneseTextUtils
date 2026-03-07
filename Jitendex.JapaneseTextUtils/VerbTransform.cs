@@ -23,13 +23,19 @@ namespace Jitendex.JapaneseTextUtils;
 public static class VerbTransform
 {
     public static string? VerbToMasuStem(this string text)
-        => LastToMasuStemLast(text) switch
+        => MakeStem(text, GetMasuStemLast(text));
+
+    public static string? VerbToTeStem(this string text)
+        => MakeStem(text, GetTeStemLast(text));
+
+    private static string? MakeStem(string text, char possibleStemLast)
+        => possibleStemLast switch
         {
             default(char) => null,
-            char masuStemLast => string.Create
+            char stemLast => string.Create
             (
                 length: text.Length,
-                state: (text, masuStemLast),
+                state: (text, stemLast),
                 action: static (destination, state) =>
                 {
                     int finalIndex = state.text.Length - 1;
@@ -37,12 +43,12 @@ public static class VerbTransform
                     {
                         destination[i] = state.text[i];
                     }
-                    destination[finalIndex] = state.masuStemLast;
+                    destination[finalIndex] = state.stemLast;
                 }
             ),
         };
 
-    private static char LastToMasuStemLast(ReadOnlySpan<char> text)
+    private static char GetMasuStemLast(ReadOnlySpan<char> text)
         => text.Length == 0 ? default : text[^1] switch
         {
             'う' => 'い',
@@ -55,6 +61,22 @@ public static class VerbTransform
             'ぶ' => 'び',
             'む' => 'み',
             'る' => 'り',
+            _ => default
+        };
+
+    private static char GetTeStemLast(ReadOnlySpan<char> text)
+        => text.Length == 0 ? default : text[^1] switch
+        {
+            'う' => 'っ',
+            'く' => 'い',
+            'ぐ' => 'い',
+            'す' => 'し',
+            'ず' => 'じ',
+            'つ' => 'っ',
+            'ぬ' => 'ん',
+            'ぶ' => 'ん',
+            'む' => 'ん',
+            'る' => 'っ',
             _ => default
         };
 }
