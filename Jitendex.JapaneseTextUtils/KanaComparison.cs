@@ -49,6 +49,22 @@ public static class KanaComparison
     public static bool AreAllHiragana(this IEnumerable<Rune> runes) => runes.All(IsHiragana);
     public static bool AreAllKatakana(this IEnumerable<Rune> runes) => runes.All(IsKatakana);
 
+    public static bool AreAllKana(this ReadOnlySpan<Rune> runes) => runes.All(IsKana);
+    public static bool AreAllHiragana(this ReadOnlySpan<Rune> runes) => runes.All(IsHiragana);
+    public static bool AreAllKatakana(this ReadOnlySpan<Rune> runes) => runes.All(IsKatakana);
+
+    private static bool All(this ReadOnlySpan<Rune> runes, Func<Rune, bool> predicate)
+    {
+        foreach (var rune in runes)
+        {
+            if (!predicate(rune))
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public static bool IsKanaEquivalent(this char c, char comparison)
         => c.KatakanaToHiragana() == comparison.KatakanaToHiragana();
 
