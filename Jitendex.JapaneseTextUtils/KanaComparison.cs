@@ -86,11 +86,8 @@ public static class KanaComparison
                                   _ => false
     };
 
-    private static bool IsKatakana(int c) => c switch
-    {
-        (>= 0x30A0) and (<= 0x30FF) => true,
-                                  _ => false
-    };
-
 #pragma warning restore format
+
+    private static bool IsKatakana(int c)
+        => c is (>= 0x30A0) and (<= 0x30FF);
 }

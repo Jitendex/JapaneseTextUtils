@@ -28,28 +28,24 @@ public static class VerbTransform
     public static string? VerbToTeStem(this string text)
         => MakeStem(text, GetTeStemLast(text));
 
-    private static string? MakeStem(string text, char possibleStemLast)
-        => possibleStemLast switch
-        {
-            default(char) => null,
-            char stemLast => string.Create
-            (
-                length: text.Length,
-                state: (text, stemLast),
-                action: static (destination, state) =>
+    private static string? MakeStem(string text, char? stemLast)
+        => stemLast is null ? null : string.Create
+        (
+            length: text.Length,
+            state: (Text: text, StemLast: stemLast.Value),
+            action: static (destination, state) =>
+            {
+                int finalIndex = state.Text.Length - 1;
+                for (int i = 0; i < finalIndex; i++)
                 {
-                    int finalIndex = state.text.Length - 1;
-                    for (int i = 0; i < finalIndex; i++)
-                    {
-                        destination[i] = state.text[i];
-                    }
-                    destination[finalIndex] = state.stemLast;
+                    destination[i] = state.Text[i];
                 }
-            ),
-        };
+                destination[finalIndex] = state.StemLast;
+            }
+        );
 
-    private static char GetMasuStemLast(ReadOnlySpan<char> text)
-        => text.Length == 0 ? default : text[^1] switch
+    private static char? GetMasuStemLast(ReadOnlySpan<char> text)
+        => text.IsEmpty ? default : text[^1] switch
         {
             'う' => 'い',
             'く' => 'き',
@@ -61,11 +57,11 @@ public static class VerbTransform
             'ぶ' => 'び',
             'む' => 'み',
             'る' => 'り',
-            _ => default
+            _ => null
         };
 
-    private static char GetTeStemLast(ReadOnlySpan<char> text)
-        => text.Length == 0 ? default : text[^1] switch
+    private static char? GetTeStemLast(ReadOnlySpan<char> text)
+        => text.IsEmpty ? default : text[^1] switch
         {
             'う' => 'っ',
             'く' => 'い',
@@ -77,6 +73,6 @@ public static class VerbTransform
             'ぶ' => 'ん',
             'む' => 'ん',
             'る' => 'っ',
-            _ => default
+            _ => null
         };
 }

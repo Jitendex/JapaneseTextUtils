@@ -25,7 +25,7 @@ public static class KanjiTransform
 {
     public static ReadOnlySpan<Rune> IterationMarksToKanji(this ReadOnlySpan<Rune> runes)
     {
-        if (!ContainsIterationMark(runes))
+        if (runes.Any(IsIterationMark) is not true)
         {
             return runes;
         }
@@ -60,22 +60,6 @@ public static class KanjiTransform
         return normalizedRunes;
     }
 
-    private static bool ContainsIterationMark(ReadOnlySpan<Rune> runes)
-    {
-        foreach (var rune in runes)
-        {
-            if (IsIterationMark(rune))
-            {
-                return true;
-            }
-        }
-        return false;
-    }
-
     private static bool IsIterationMark(Rune rune)
-        => rune.Value switch
-        {
-            '々' or '〻' => true,
-            _ => false
-        };
+        => rune.Value is '々' or '〻';
 }

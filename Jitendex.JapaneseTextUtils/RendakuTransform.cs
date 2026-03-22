@@ -25,7 +25,7 @@ public static class RendakuTransform
     public static string[] ToRendakuForms(this ReadOnlySpan<char> text)
     {
         var rendakuChars = FirstToRendakuChars(text);
-        if (rendakuChars.Length == 0)
+        if (rendakuChars.IsEmpty)
         {
             return [];
         }
@@ -56,7 +56,7 @@ public static class RendakuTransform
     }
 
     private static ReadOnlySpan<char> FirstToRendakuChars(ReadOnlySpan<char> x)
-        => x.Length == 0 ? [] : x[0] switch
+        => x.IsEmpty ? [] : x[0] switch
         {
             'か' => ['が'],
             'き' => ['ぎ'],

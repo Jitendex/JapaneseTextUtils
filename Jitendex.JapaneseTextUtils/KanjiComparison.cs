@@ -22,6 +22,10 @@ namespace Jitendex.JapaneseTextUtils;
 
 public static class KanjiComparison
 {
+    public static bool IsKanjiOrDefault(this Rune c) => c.IsKanji() || c == default;
+
+#pragma warning disable format
+
     public static bool IsKanji(this Rune c) => c.Value switch
     {
         (>= 0x4E00)  and (<= 0x9FFF)  => true,  // CJK Unified Ideographs
@@ -41,5 +45,5 @@ public static class KanjiComparison
                                     _ => false
     };
 
-    public static bool IsKanjiOrDefault(this Rune c) => c.IsKanji() || c == default;
+#pragma warning restore format
 }

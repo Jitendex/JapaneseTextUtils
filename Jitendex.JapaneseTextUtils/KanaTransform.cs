@@ -59,36 +59,32 @@ public static class KanaTransform
 #pragma warning restore format
 
     public static string KatakanaToHiragana(this string text)
-        => text.IsConvertibleToHiragana() is not true
-            ? text
-            : string.Create
-            (
-                length: text.Length,
-                state: text,
-                action: static (destination, state) =>
+        => text.IsConvertibleToHiragana() is not true ? text : string.Create
+        (
+            length: text.Length,
+            state: text,
+            action: static (destination, state) =>
+            {
+                for (int i = 0; i < state.Length; i++)
                 {
-                    for (int i = 0; i < state.Length; i++)
-                    {
-                        destination[i] = state[i].KatakanaToHiragana();
-                    }
+                    destination[i] = state[i].KatakanaToHiragana();
                 }
-            );
+            }
+        );
 
     public static string HiraganaToKatakana(this string text)
-        => text.IsConvertibleToKatakana() is not true
-            ? text
-            : string.Create
-            (
-                length: text.Length,
-                state: text,
-                action: static (destination, state) =>
+        => text.IsConvertibleToKatakana() is not true ? text : string.Create
+        (
+            length: text.Length,
+            state: text,
+            action: static (destination, state) =>
+            {
+                for (int i = 0; i < state.Length; i++)
                 {
-                    for (int i = 0; i < state.Length; i++)
-                    {
-                        destination[i] = state[i].HiraganaToKatakana();
-                    }
+                    destination[i] = state[i].HiraganaToKatakana();
                 }
-            );
+            }
+        );
 
     public static ReadOnlySpan<char> KatakanaToHiragana(this ReadOnlySpan<char> text)
     {
