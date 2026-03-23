@@ -25,7 +25,7 @@ public static class KanjiTransform
 {
     public static ReadOnlySpan<Rune> IterationMarksToKanji(this ReadOnlySpan<Rune> runes)
     {
-        if (runes.Any(IsIterationMark) is not true)
+        if (runes.Any(IsIterationMark) is false)
         {
             return runes;
         }

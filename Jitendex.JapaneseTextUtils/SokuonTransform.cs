@@ -23,7 +23,7 @@ namespace Jitendex.JapaneseTextUtils;
 public static class SokuonTransform
 {
     public static string? ToSokuonForm(this string text)
-        => LastCanGeminate(text) is not true ? null : string.Create
+        => LastCanGeminate(text) is false ? null : string.Create
         (
             length: text.Length,
             state: text,
@@ -39,6 +39,6 @@ public static class SokuonTransform
         );
 
     private static bool LastCanGeminate(ReadOnlySpan<char> text)
-        => text.IsEmpty is not true
+        => text.IsEmpty is false
         && text[^1] is 'つ' or 'く' or 'き' or 'ち';
 }

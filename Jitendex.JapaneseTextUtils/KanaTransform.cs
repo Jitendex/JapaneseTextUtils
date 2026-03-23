@@ -59,7 +59,7 @@ public static class KanaTransform
 #pragma warning restore format
 
     public static string KatakanaToHiragana(this string text)
-        => text.IsConvertibleToHiragana() is not true ? text : string.Create
+        => text.IsConvertibleToHiragana() is false ? text : string.Create
         (
             length: text.Length,
             state: text,
@@ -73,7 +73,7 @@ public static class KanaTransform
         );
 
     public static string HiraganaToKatakana(this string text)
-        => text.IsConvertibleToKatakana() is not true ? text : string.Create
+        => text.IsConvertibleToKatakana() is false ? text : string.Create
         (
             length: text.Length,
             state: text,
@@ -88,7 +88,7 @@ public static class KanaTransform
 
     public static ReadOnlySpan<char> KatakanaToHiragana(this ReadOnlySpan<char> text)
     {
-        if (text.IsConvertibleToHiragana() is not true)
+        if (text.IsConvertibleToHiragana() is false)
         {
             return text;
         }
@@ -102,7 +102,7 @@ public static class KanaTransform
 
     public static ReadOnlySpan<char> HiraganaToKatakana(this ReadOnlySpan<char> text)
     {
-        if (text.IsConvertibleToKatakana() is not true)
+        if (text.IsConvertibleToKatakana() is false)
         {
             return text;
         }
@@ -116,7 +116,7 @@ public static class KanaTransform
 
     public static ReadOnlySpan<Rune> KatakanaToHiragana(this ReadOnlySpan<Rune> text)
     {
-        if (text.IsConvertibleToHiragana() is not true)
+        if (text.IsConvertibleToHiragana() is false)
         {
             return text;
         }
@@ -130,7 +130,7 @@ public static class KanaTransform
 
     public static ReadOnlySpan<Rune> HiraganaToKatakana(this ReadOnlySpan<Rune> text)
     {
-        if (text.IsConvertibleToKatakana() is not true)
+        if (text.IsConvertibleToKatakana() is false)
         {
             return text;
         }
