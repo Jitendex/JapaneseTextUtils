@@ -24,8 +24,7 @@ public static class KanjiComparison
 {
     public static bool IsKanjiOrDefault(this Rune c) => c.IsKanji() || c == default;
 
-#pragma warning disable format
-
+    #pragma warning disable format
     public static bool IsKanji(this Rune c) => c.Value switch
     {
         (>= 0x4E00)  and (<= 0x9FFF)  => true,  // CJK Unified Ideographs
@@ -44,6 +43,5 @@ public static class KanjiComparison
         (>= 0x2F800) and (<= 0x2FA1F) => true,  // CJK Compatibility Ideographs Supplement
                                     _ => false
     };
-
-#pragma warning restore format
+    #pragma warning restore format
 }

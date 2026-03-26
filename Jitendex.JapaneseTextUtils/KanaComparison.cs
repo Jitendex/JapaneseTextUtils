@@ -77,16 +77,14 @@ public static class KanaComparison
 
     private static bool IsKana(int c) => IsHiragana(c) || IsKatakana(c);
 
-#pragma warning disable format
-
+    #pragma warning disable format
     private static bool IsHiragana(int c) => c switch
     {
         (>= 0x3041) and (<= 0x3096) => true,
         (>= 0x3099) and (<= 0x309F) => true,
                                   _ => false
     };
-
-#pragma warning restore format
+    #pragma warning restore format
 
     private static bool IsKatakana(int c)
         => c is (>= 0x30A0) and (<= 0x30FF);

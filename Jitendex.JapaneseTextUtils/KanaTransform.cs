@@ -38,8 +38,7 @@ public static class KanaTransform
     private static bool IsConvertibleToHiragana(Rune x) => IsConvertibleToHiragana(x.Value);
     private static bool IsConvertibleToKatakana(Rune x) => IsConvertibleToKatakana(x.Value);
 
-#pragma warning disable format
-
+    #pragma warning disable format
     private static bool IsConvertibleToHiragana(int x)
         => x switch
         {
@@ -55,8 +54,7 @@ public static class KanaTransform
                 0x309D   or     0x309E  => true,  // ゝ and ゞ
                                       _ => false
         };
-
-#pragma warning restore format
+    #pragma warning restore format
 
     public static string KatakanaToHiragana(this string text)
         => text.IsConvertibleToHiragana() is false ? text : string.Create
