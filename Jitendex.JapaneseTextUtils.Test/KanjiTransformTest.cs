@@ -16,8 +16,6 @@ You should have received a copy of the GNU Affero General Public License along w
 If not, see <https://www.gnu.org/licenses/>.
 */
 
-using System.Text;
-
 namespace Jitendex.JapaneseTextUtils.Test;
 
 /// <summary>
