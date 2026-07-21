@@ -21,6 +21,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
+namespace Jitendex.JapaneseTextUtils;
+
 public static class RuneCollectionExtensions
 {
     public static string FastToString(this ReadOnlySpan<Rune> runes)

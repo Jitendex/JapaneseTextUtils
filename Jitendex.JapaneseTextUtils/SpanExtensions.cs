@@ -18,6 +18,8 @@ If not, see <https://www.gnu.org/licenses/>.
 
 using System;
 
+namespace Jitendex.JapaneseTextUtils;
+
 internal static class SpanExtensions
 {
     public static bool All<T>(this ReadOnlySpan<T> items, Func<T, bool> predicate)
